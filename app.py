@@ -19,7 +19,7 @@ def calculate_similarity_score(domain, df):
             continue  
         
         total_score = 0
-        matching_parts = {"Employees": "", "Funding stage": "", "refined_gpt_tags": ""}
+        matching_parts = {"Employees": "", "Funding stage": "", "Combined_Tags": ""}
 
         if row['Employees'] == domain_row['Employees']:
             total_score += 0.20
@@ -33,15 +33,15 @@ def calculate_similarity_score(domain, df):
                 matching_parts["Funding stage"] = row["Funding stage"]
 
         # 3. Compare refined_gpt_tags (60% contribution based on word match)
-        domain_tags = domain_row['refined_gpt_tags'] if isinstance(domain_row['refined_gpt_tags'], list) else []
-        row_tags = row['refined_gpt_tags'] if isinstance(row['refined_gpt_tags'], list) else []
+        domain_tags = domain_row['Combined_Tags'] if isinstance(domain_row['Combined_Tags'], list) else []
+        row_tags = row['Combined_Tags'] if isinstance(row['Combined_Tags'], list) else []
 
         common_tags = set(domain_tags).intersection(set(row_tags))
         common_tag_count = len(common_tags)
 
         if common_tag_count > 0:
             total_score += min(0.12 * common_tag_count, 0.60)  # Scale up to 5 matches for 60%
-            matching_parts["refined_gpt_tags"] = ", ".join(common_tags)
+            matching_parts["Combined_Tags"] = ", ".join(common_tags)
         
         # Append the domain, its similarity score, and matching parts to the list
         similarity_scores.append((row['domain'], total_score, matching_parts))
@@ -67,9 +67,9 @@ def main():
     st.write("Enter a domain to find the most similar domains based on employees, funding stage, and key tags.")
 
     # Fixed DataFrame (replace this with your real data)
-    df = pd.read_csv('similarity_df.csv')
+    df = pd.read_csv('similarity_df_plus_WP_tags.csv')
     # Domain input box
-    df['refined_gpt_tags'] = df['refined_gpt_tags'].apply(safe_literal_eval)
+    df['Combined_Tags'] = df['Combined_Tags'].apply(safe_literal_eval)
 
     domain = st.text_input("🔗 Enter domain (e.g., 'n26.com')", '')
 
@@ -81,7 +81,7 @@ def main():
                 "Domain": domain_row['domain'],
                 "Employees": domain_row['Employees'],
                 "Funding stage": domain_row['Funding stage'],
-                "refined_gpt_tags": ", ".join(domain_row['refined_gpt_tags']) if isinstance(domain_row['refined_gpt_tags'], list) else ""
+                "Combined_Tags": ", ".join(domain_row['Combined_Tags']) if isinstance(domain_row['Combined_Tags'], list) else ""
             }])
             st.table(input_domain_details)
             
