@@ -54,7 +54,11 @@ def calculate_similarity_score(domain, df):
     for domain, score, matches in similarity_scores[:10]:
         row_dict = {"Domain": domain, "Score": f"{score:.2f}"}
         row_dict.update(matches)
+        row_dict['Matched Keywords'] = row_dict['Combined_Tags']
+        del row_dict['Combined_Tags']
         result_table.append(row_dict)
+
+    
     
     return result_table, domain_row
 
